@@ -8,50 +8,47 @@ int main()
     const char* filename = "/home/tyh/桌面/2024春工程方向春招题/参考视频/dragon.mp4";
     int result = decoder_init(filename);
     int total_frames = 0;
-    int height = 0, width = 0;
-    unsigned char* data = NULL;
+    int height = 0,width = 0,linesize = 0;
+    int target_height = 0,target_width = 0;
+    unsigned char red = 0,green = 0,blue = 0;
     
 
     total_frames = get_total_frames(filename);
     struct _Frame frame_dragon[total_frames - 1];
-    for (int i = 0; i < total_frames - 1; i++) {
+    for (int i = 0;i <= total_frames - 1;i++){
         frame_dragon[i] = decoder_get_frame(filename);
     }
-    Frame frame_resize = resize(frame_dragon[0],213,120);
+    printf ("请输入预期帧的宽度：");
+    scanf ("%d",&target_width);
+    printf ("请输入预期帧的高度：");
+    scanf ("%d",&target_height);
+    Frame frame_resize = resize(frame_dragon[0],target_width,target_height);  //213 120  852 480
+
     height = frame_resize.height;
     width = frame_resize.width;
-    data = frame_resize.data;
-    //printf("%d %d",width,height);
+    //printf("%d ",height);
+    //printf("%d",width);
+    unsigned char* data1 = frame_resize.data;
+        
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            unsigned char red = *data;
-            unsigned char green = *(data + 1);
-            unsigned char blue = *(data + 2);
-            double gray = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
-            
-            if (gray < 37){
-                printf(" "); 
-            }else if(gray < 73){
-                printf("."); 
-            }else if(gray < 110){
-                printf(":"); 
-            }else if(gray < 146){
-                printf("="); 
-            }else if(gray < 182){
-                printf("#");
-            }else if(gray < 219){
-                printf("&");  
-            }else{
-                printf("@");
-            }         
-            data += 3; 
+    for (int y = 0;y < height;y++){
+        for (int x = 0;x < width;x++){
+            red = *data1;
+            green = *(data1 + 1);
+            blue = *(data1 + 2);
+            data1 += 3;
+            //gray = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+            printf("\x1b[38;2;%d;%d;%dm█", red, green, blue);
         }
-        printf("\n"); 
+        printf("\x1b[0m\n");
     }
-    decoder_close(filename);
     free(frame_resize.data);
+    decoder_close(filename);
+    //printf ("%d\n%d\n%d\n",frame_dragon[1].height,frame_dragon[1].width,frame_dragon[1].linesize);
+   
+
 }
+
 
 Frame resize(Frame frame, int target_width, int target_height){
     Frame frame_resize;
